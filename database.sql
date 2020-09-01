@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS `client` (
     `id`          SMALLINT    UNSIGNED NOT NULL,
     `telephone`   CHAR(10),
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_client_id` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_client_id` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE,
+    CONSTRAINT UNIQUE INDEX `ind_uni_telephone` (`telephone`)
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
