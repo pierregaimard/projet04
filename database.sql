@@ -7,11 +7,15 @@ CREATE DATABASE `express_food` CHARACTER SET 'utf8mb4';
 
 USE express_food;
 
+
 -- ------------------------------ --
 -- ---------- Tables ------------ --
 -- ------------------------------ --
 
+
+-- -------- --
 -- Table civilite --
+-- -------- --
 CREATE TABLE `civilite` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `abrege`  VARCHAR(5)  NOT NULL,
@@ -22,7 +26,9 @@ CREATE TABLE `civilite` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ---------------- --
 -- Table utilisateur_role --
+-- ---------------- --
 CREATE TABLE `utilisateur_role` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `role`    VARCHAR(7),
@@ -32,7 +38,9 @@ CREATE TABLE `utilisateur_role` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ----------------- --
 -- Table utilisateur --
+-- ----------------- --
 CREATE TABLE `utilisateur` (
     `id`              SMALLINT        UNSIGNED NOT NULL AUTO_INCREMENT,
     `email`           VARCHAR(30)     NOT NULL,
@@ -43,6 +51,7 @@ CREATE TABLE `utilisateur` (
     `prenom`          VARCHAR(20),
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_utilisateur_id_role` FOREIGN KEY (`id_role`) REFERENCES `utilisateur_role` (`id`) ON UPDATE CASCADE,
+    CONSTRAINT `fk_utilisateur_id_civilite` FOREIGN KEY (`id_civilite`) REFERENCES `civilite` (`id`) ON UPDATE CASCADE,
     CONSTRAINT UNIQUE INDEX `ind_uni_email` (`email`),
     INDEX `ind_nom` (`nom`(10))
 )
@@ -50,7 +59,9 @@ CREATE TABLE `utilisateur` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- -------------------- --
 -- Table livreur_statut --
+-- -------------------- --
 CREATE TABLE `livreur_statut` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `label`   VARCHAR(21),
@@ -60,7 +71,9 @@ CREATE TABLE `livreur_statut` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ------------- --
 -- Table livreur --
+-- ------------- --
 CREATE TABLE `livreur` (
     `id`          SMALLINT        UNSIGNED NOT NULL,
     `id_statut`   TINYINT         UNSIGNED NOT NULL,
@@ -76,7 +89,9 @@ CREATE TABLE `livreur` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ------------ --
 -- Table client --
+-- ------------ --
 CREATE TABLE `client` (
     `id`          SMALLINT    UNSIGNED NOT NULL,
     `telephone`   CHAR(10),
@@ -88,7 +103,9 @@ CREATE TABLE `client` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- --------------- --
 -- Table client_cb --
+-- --------------- --
 CREATE TABLE `client_cb` (
     `id`          SMALLINT    UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_client`   SMALLINT    UNSIGNED NOT NULL,
@@ -105,7 +122,9 @@ CREATE TABLE `client_cb` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ----------------------- --
 -- Table adresse_livraison --
+-- ----------------------- --
 CREATE TABLE `adresse_livraison` (
     `id`          SMALLINT        UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_client`   SMALLINT        UNSIGNED,
@@ -121,7 +140,9 @@ CREATE TABLE `adresse_livraison` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ---------------------------- --
 -- Table commande_paiement_type --
+-- ---------------------------- --
 CREATE TABLE `commande_paiement_type` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `label`   VARCHAR(7)  NOT NULL,
@@ -131,7 +152,9 @@ CREATE TABLE `commande_paiement_type` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- --------------------- --
 -- Table commande_statut --
+-- --------------------- --
 CREATE TABLE `commande_statut` (
     `id`      TINYINT         UNSIGNED NOT NULL AUTO_INCREMENT,
     `label`   VARCHAR(25)     NOT NULL,
@@ -141,7 +164,9 @@ CREATE TABLE `commande_statut` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- -------------- --
 -- Table commande --
+-- -------------- --
 CREATE TABLE `commande` (
     `numero`          MEDIUMINT   UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_statut`       TINYINT     UNSIGNED NOT NULL,
@@ -161,7 +186,9 @@ CREATE TABLE `commande` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ---------- --
 -- Table Type --
+-- ---------- --
 CREATE TABLE `plat_type` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `label`   VARCHAR(7)  NOT NULL,
@@ -171,7 +198,9 @@ CREATE TABLE `plat_type` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ---------- --
 -- Table plat --
+-- ---------- --
 CREATE TABLE `plat` (
     `id`                  TINYINT         UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_type`             TINYINT         UNSIGNED NOT NULL,
@@ -187,20 +216,25 @@ CREATE TABLE `plat` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- --------------- --
 -- Table plat_jour --
+-- --------------- --
 CREATE TABLE `plat_jour` (
     `id`          SMALLINT        UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_plat`     TINYINT         UNSIGNED,
     `date`        DATE            NOT NULL,
     `prix`        DECIMAL(4,2)    NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_plat_jour_id_plat` FOREIGN KEY (`id_plat`) REFERENCES `plat` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_plat_jour_id_plat` FOREIGN KEY (`id_plat`) REFERENCES `plat` (`id`) ON DELETE SET NULL,
+    CONSTRAINT UNIQUE INDEX `ind_uni_id_plat_date` (`id_plat`, `date`)
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ------------------- --
 -- Table commande_plat --
+-- ------------------- --
 CREATE TABLE `commande_plat_jour` (
     `num_commande`    MEDIUMINT   UNSIGNED NOT NULL,
     `id_plat_jour`    SMALLINT    UNSIGNED NOT NULL,
@@ -213,18 +247,25 @@ CREATE TABLE `commande_plat_jour` (
     DEFAULT CHARSET=utf8mb4;
 
 
+
 -- ------------------------------ --
 -- --------- Données ------------ --
 -- ------------------------------ --
 
+
+-- -------- --
 -- civilite --
+-- -------- --
 INSERT INTO `civilite`
     (`abrege`, `complet`)
 VALUES
     ('MME', 'MADAME'),
     ('MR', 'MONSIEUR');
 
+
+-- ---------------- --
 -- utilisateur_role --
+-- ---------------- --
 INSERT INTO `utilisateur_role`
     (`role`)
 VALUES
@@ -232,7 +273,10 @@ VALUES
     ('CLIENT'),
     ('LIVREUR');
 
+
+-- -------------- --
 -- livreur_statut --
+-- -------------- --
 INSERT INTO `livreur_statut`
     (`label`)
 VALUES
@@ -240,7 +284,10 @@ VALUES
     ('EN COURS DE LIVRAISON'),
     ('INDISPONIBLE');
 
+
+-- ---------------------- --
 -- commande_paiement_type --
+-- ---------------------- --
 INSERT INTO `commande_paiement_type`
     (`label`)
 VALUES
@@ -248,7 +295,10 @@ VALUES
     ('CHEQUE'),
     ('ESPECES');
 
+
+-- --------------- --
 -- commande_statut --
+-- --------------- --
 INSERT INTO `commande_statut`
     (`label`)
 VALUES
@@ -259,14 +309,20 @@ VALUES
     ('LIVREE'),
     ('ANNULEE');
 
+
+-- --------- --
 -- plat_type --
+-- --------- --
 INSERT INTO `plat_type`
     (`label`)
 VALUES
     ('PLAT'),
     ('DESSERT');
 
+
+-- ----------- --
 -- utilisateur --
+-- ----------- --
 INSERT INTO `utilisateur`
     (`email`, `mot_de_passe`, `id_role`, `id_civilite`, `nom`, `prenom`)
 VALUES
@@ -280,7 +336,10 @@ VALUES
     ('fred.sanpan@outlook.com', '2fb8f578a1ba1adeae2a63445a1517c6', 2, 2, 'Sanpan', 'Frederic'),
     ('lisa.prost@free.fr', '648fd349448abf4810ca8df6c3b78af0', 2, 1, 'Prost', 'Lisa');
 
+
+-- ------- --
 -- livreur --
+-- ------- --
 INSERT INTO `livreur`
     (`id`, `id_statut`, `latitude`, `longitude`, `telephone`)
 VALUES
@@ -288,7 +347,10 @@ VALUES
     (3, 2, 48.8506796,2.2985789, '0657442113'),
     (4, 3, NULL, NULL, '0624243112');
 
+
+-- ------ --
 -- client --
+-- ------ --
 INSERT INTO `client`
     (`id`, `telephone`)
 VALUES
@@ -298,7 +360,10 @@ VALUES
     (8, '0721343423'),
     (9, '0675312244');
 
+
+-- --------- --
 -- client_cb --
+-- --------- --
 INSERT INTO `client_cb`
     (`id_client`, `numero`, `nom`, `date`, `crypto`, `defaut`)
 VALUES
@@ -306,7 +371,10 @@ VALUES
     (7, 5432556377289385, 'REMI JULIETTE', '2021-10-08', '241', FALSE),
     (8, 4567542341526354, 'F. SANPAN', '2021-10-24', '117', TRUE);
 
+
+-- ----------------- --
 -- adresse_livraison --
+-- ----------------- --
 INSERT INTO `adresse_livraison`
     (`id_client`, `adresse`, `code_postal`, `ville`, `info`, `defaut`)
 VALUES
@@ -318,7 +386,10 @@ VALUES
     (9, '8 Rue Jarry', '75010', 'Paris', 'Porte noire 2eme étage', TRUE),
     (9, '31 Rue Fessart', '75019', 'Paris', 'Société RTC Connect', TRUE);
 
+
+-- ---- --
 -- plat --
+-- ---- --
 INSERT INTO `plat`
     (`id_type`, `nom`, `description`, `image`, `dernier_prix_vente`)
 VALUES
@@ -335,7 +406,10 @@ VALUES
     (2, 'Paris Brest', 'hiuhqd qsudhf iqsqsdc udhf qsidufhqisudfhqsiduf  qsdifuhqs df  fgddfguhq .', '/dessert/dessert_11.jpeg', 14),
     (1, 'Velouté de cêpes aux lardons de foie gras', 'hi qdfqsdfqsdf deuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_12.jpeg', 28.50);
 
+
+-- --------- --
 -- plat_jour --
+-- --------- --
 INSERT INTO `plat_jour`
     (`id_plat`, `date`, `prix`)
 VALUES
@@ -345,7 +419,9 @@ VALUES
     (4, '2020-10-23', 27.50), (2, '2020-10-23', 23.50), (8, '2020-10-23', 11), (9, '2020-10-23', 11);
 
 
+-- -------- --
 -- commande --
+-- -------- --
 INSERT INTO `commande`
     (`id_statut`, `id_client`, `id_adresse`, `id_livreur`, `type_paiement`, `temps_livraison`)
 VALUES
@@ -358,6 +434,10 @@ VALUES
     (5, 6, 2, 4, 3, 13),
     (5, 6, 6, 4, 1, 18);
 
+
+-- ------------------ --
+-- commande_plat_jour --
+-- ------------------ --
 INSERT INTO `commande_plat_jour`
     (`num_commande`, `id_plat_jour`, `quantite`)
 VALUES
