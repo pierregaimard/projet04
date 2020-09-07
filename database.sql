@@ -13,9 +13,9 @@ USE express_food;
 -- ------------------------------ --
 
 
--- -------- --
+-- -------------- --
 -- Table civilite --
--- -------- --
+-- -------------- --
 CREATE TABLE `civilite` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `abrege`  VARCHAR(5)  NOT NULL,
@@ -26,9 +26,9 @@ CREATE TABLE `civilite` (
     DEFAULT CHARSET=utf8mb4;
 
 
--- ---------------- --
+-- ---------------------- --
 -- Table utilisateur_role --
--- ---------------- --
+-- ---------------------- --
 CREATE TABLE `utilisateur_role` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `role`    VARCHAR(7),
@@ -44,16 +44,16 @@ CREATE TABLE `utilisateur_role` (
 CREATE TABLE `utilisateur` (
     `id`              SMALLINT        UNSIGNED NOT NULL AUTO_INCREMENT,
     `email`           VARCHAR(30)     NOT NULL,
-    `mot_de_passe`    VARCHAR(32)    NOT NULL,
+    `mot_de_passe`    VARCHAR(32)     NOT NULL,
     `id_role`         TINYINT         UNSIGNED NOT NULL,
     `id_civilite`     TINYINT         UNSIGNED NOT NULL,
     `nom`             VARCHAR(20)     NOT NULL,
     `prenom`          VARCHAR(20),
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_utilisateur_id_role` FOREIGN KEY (`id_role`) REFERENCES `utilisateur_role` (`id`) ON UPDATE CASCADE,
-    CONSTRAINT `fk_utilisateur_id_civilite` FOREIGN KEY (`id_civilite`) REFERENCES `civilite` (`id`) ON UPDATE CASCADE,
-    CONSTRAINT UNIQUE INDEX `ind_uni_email` (`email`),
-    INDEX `ind_nom` (`nom`(10))
+    CONSTRAINT `fk_utilisateur_id_role` FOREIGN KEY (`id_role`) REFERENCES `utilisateur_role` (`id`), -- suppression/modification interdite si utilisé par un `utilisateur`
+    CONSTRAINT `fk_utilisateur_id_civilite` FOREIGN KEY (`id_civilite`) REFERENCES `civilite` (`id`), -- suppression/modification interdite si utilisé par un ' utilisateur`
+    CONSTRAINT UNIQUE INDEX `ind_uni_email` (`email`), -- `email` doit être unique
+    INDEX `ind_nom` (`nom`(10)) -- optimisation de la recherche sur le `nom` (utilisé pour les clients principalement)
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -81,9 +81,9 @@ CREATE TABLE `livreur` (
     `longitude`   DECIMAL (8,7),
     `telephone`   CHAR(10),
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_livreur_id`          FOREIGN KEY (`id`)          REFERENCES `utilisateur` (`id`)     ON DELETE CASCADE,
-    CONSTRAINT `fk_livreur_id_statut`   FOREIGN KEY (`id_statut`)   REFERENCES `livreur_statut` (`id`)  ON UPDATE CASCADE,
-    CONSTRAINT UNIQUE INDEX `ind_uni_telephone` (`telephone`)
+    CONSTRAINT `fk_livreur_id`          FOREIGN KEY (`id`)          REFERENCES `utilisateur` (`id`)     ON DELETE CASCADE, -- le `livreur` est lié a l' `utilisateur` (héritage)
+    CONSTRAINT `fk_livreur_id_statut`   FOREIGN KEY (`id_statut`)   REFERENCES `livreur_statut` (`id`),  -- suppression/modification interdite si utilisé par un `livreur`
+    CONSTRAINT UNIQUE INDEX `ind_uni_telephone` (`telephone`) -- le `telephone` doit être unique
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -96,8 +96,8 @@ CREATE TABLE `client` (
     `id`          SMALLINT    UNSIGNED NOT NULL,
     `telephone`   CHAR(10),
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_client_id` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE,
-    CONSTRAINT UNIQUE INDEX `ind_uni_telephone` (`telephone`)
+    CONSTRAINT `fk_client_id` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE, -- le `client` est lié a l' `utilisateur` (héritage)
+    CONSTRAINT UNIQUE INDEX `ind_uni_telephone` (`telephone`) -- le `telephone` doit être unique
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -115,8 +115,8 @@ CREATE TABLE `client_cb` (
     `crypto`      CHAR(3)     NOT NULL,
     `defaut`      TINYINT     NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_client_cb_id_client` FOREIGN KEY (`id_client`) REFERENCES `client` (`id`) ON DELETE CASCADE,
-    CONSTRAINT UNIQUE INDEX `ind_uni_numero` (`numero`)
+    CONSTRAINT `fk_client_cb_id_client` FOREIGN KEY (`id_client`) REFERENCES `client` (`id`) ON DELETE CASCADE, -- la `client_cb` est liée au `client`
+    CONSTRAINT UNIQUE INDEX `ind_uni_numero` (`numero`) -- le `numero` de cb doit être unique
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -134,7 +134,7 @@ CREATE TABLE `adresse_livraison` (
     `info`        TINYTEXT,
     `defaut`      TINYINT         NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_adresse_livraison_id_client` FOREIGN KEY (`id_client`) REFERENCES `client` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_adresse_livraison_id_client` FOREIGN KEY (`id_client`) REFERENCES `client` (`id`) ON DELETE SET NULL -- si un client est supprimé, on conserve l'adresse pour les commandes mais on supprime la liaison au client
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -176,11 +176,11 @@ CREATE TABLE `commande` (
     `type_paiement`   TINYINT     UNSIGNED,
     `temps_livraison` TINYINT     UNSIGNED,
     PRIMARY KEY (`numero`),
-    CONSTRAINT `fk_commande_id_statut`      FOREIGN KEY (`id_statut`)       REFERENCES `commande_statut` (`id`)         ON UPDATE CASCADE,
-    CONSTRAINT `fk_commande_id_client`      FOREIGN KEY (`id_client`)       REFERENCES `client` (`id`)                  ON DELETE SET NULL,
-    CONSTRAINT `fk_commande_id_adresse`     FOREIGN KEY (`id_adresse`)      REFERENCES `adresse_livraison` (`id`)       ON DELETE SET NULL,
-    CONSTRAINT `fk_commande_id_livreur`     FOREIGN KEY (`id_livreur`)      REFERENCES `livreur` (`id`)                 ON DELETE SET NULL,
-    CONSTRAINT `fk_commande_type_paiement`  FOREIGN KEY (`type_paiement`)   REFERENCES `commande_paiement_type` (`id`)  ON UPDATE CASCADE
+    CONSTRAINT `fk_commande_id_statut`      FOREIGN KEY (`id_statut`)       REFERENCES `commande_statut` (`id`),                            -- suppression/modification interdite si utilisé par une commande
+    CONSTRAINT `fk_commande_id_client`      FOREIGN KEY (`id_client`)       REFERENCES `client` (`id`)                  ON DELETE SET NULL, -- en cas de suppression du client on conserve la commande mais on supprime la liaison au client
+    CONSTRAINT `fk_commande_id_adresse`     FOREIGN KEY (`id_adresse`)      REFERENCES `adresse_livraison` (`id`)       ON DELETE SET NULL, -- en cas de suppression de l'adresse on conserve la commande mais on supprime la liaison
+    CONSTRAINT `fk_commande_id_livreur`     FOREIGN KEY (`id_livreur`)      REFERENCES `livreur` (`id`)                 ON DELETE SET NULL, -- en cas de suppression du livreur on conserve la commande mais on supprime la liaison
+    CONSTRAINT `fk_commande_type_paiement`  FOREIGN KEY (`type_paiement`)   REFERENCES `commande_paiement_type` (`id`)                      -- suppression/modification interdite si utilisée par une commande
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -209,7 +209,7 @@ CREATE TABLE `plat` (
     `image`               VARCHAR(30),
     `dernier_prix_vente`  DECIMAL(4,2),
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_plat_id_type` FOREIGN KEY (`id_type`) REFERENCES `plat_type` (`id`) ON UPDATE CASCADE,
+    CONSTRAINT `fk_plat_id_type` FOREIGN KEY (`id_type`) REFERENCES `plat_type` (`id`), -- suppression/modification interdite si utilisé par un plat.
     CONSTRAINT UNIQUE INDEX `ind_uni_nom` (`nom`)
 )
     ENGINE=INNODB
@@ -225,8 +225,8 @@ CREATE TABLE `plat_jour` (
     `date`        DATE            NOT NULL,
     `prix`        DECIMAL(4,2)    NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_plat_jour_id_plat` FOREIGN KEY (`id_plat`) REFERENCES `plat` (`id`) ON DELETE SET NULL,
-    CONSTRAINT UNIQUE INDEX `ind_uni_id_plat_date` (`id_plat`, `date`)
+    CONSTRAINT `fk_plat_jour_id_plat` FOREIGN KEY (`id_plat`) REFERENCES `plat` (`id`) ON DELETE SET NULL, -- en cas de suppression du plat on conserve le plat du jour (pour l'historique et les commandes) mais on supprime la liaison
+    CONSTRAINT UNIQUE INDEX `ind_uni_id_plat_date` (`id_plat`, `date`) -- un plat ne peut pas être référencé 2 fois à la même date par un plat du jour
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -240,8 +240,8 @@ CREATE TABLE `commande_plat_jour` (
     `id_plat_jour`    SMALLINT    UNSIGNED NOT NULL,
     `quantite`        TINYINT     UNSIGNED NOT NULL,
     PRIMARY KEY (`num_commande`, `id_plat_jour`),
-    CONSTRAINT `fk_commande_plat_jour_num_commande` FOREIGN KEY (`num_commande`) REFERENCES `commande` (`numero`) ON DELETE CASCADE,
-    CONSTRAINT `fk_commande_plat_jour_id_plat_jour` FOREIGN KEY (`id_plat_jour`) REFERENCES `plat_jour` (`id`)
+    CONSTRAINT `fk_commande_plat_jour_num_commande` FOREIGN KEY (`num_commande`) REFERENCES `commande` (`numero`) ON DELETE CASCADE, -- en cas de suppression d'une commande, on supprime les plats de la commande
+    CONSTRAINT `fk_commande_plat_jour_id_plat_jour` FOREIGN KEY (`id_plat_jour`) REFERENCES `plat_jour` (`id`)                       -- un plat du jour ne peut être modifié ou supprimé si il est référencé dans une commande
 )
     ENGINE=INNODB
     DEFAULT CHARSET=utf8mb4;
@@ -381,10 +381,10 @@ VALUES
     (NULL, '8 Rue Mignard', '75116', 'Paris', '3eme étage', TRUE),
     (6, '26 Rue de l''Assomption', '75016', 'Paris', 'Au fond de la cour, porte jaune sur la droite, Sonner fort!.', TRUE),
     (7, '15 Rue des Quatre-Vents', '75006', 'Paris', '7eme étage', TRUE),
-    (7, '30 Rue Chapon', '75003', 'Paris', 'A l\accueil, Demander la societe ATC Caractères', TRUE),
+    (7, '30 Rue Chapon', '75003', 'Paris', 'A l''accueil, Demander la societe ATC Caractères', FALSE),
     (8, '5 Avenue du Coq', '75009', 'Paris', '5eme étage', TRUE),
     (9, '8 Rue Jarry', '75010', 'Paris', 'Porte noire 2eme étage', TRUE),
-    (9, '31 Rue Fessart', '75019', 'Paris', 'Société RTC Connect', TRUE);
+    (9, '31 Rue Fessart', '75019', 'Paris', 'Société RTC Connect', FALSE);
 
 
 -- ---- --
