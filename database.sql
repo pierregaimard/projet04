@@ -7,6 +7,8 @@ CREATE DATABASE `express_food` CHARACTER SET 'utf8mb4';
 
 USE express_food;
 
+SET lc_time_names = 'fr_FR';
+
 
 -- ------------------------------ --
 -- ---------- Tables ------------ --
@@ -326,15 +328,15 @@ VALUES
 INSERT INTO `utilisateur`
     (`email`, `mot_de_passe`, `id_role`, `id_civilite`, `nom`, `prenom`)
 VALUES
-    ('admin@express-food.fr', '21232f297a57a5a743894a0e4a801fc3', 1, 2, 'Dune', 'Frédéric'),
-    ('john.crud@express-food.fr', 'b7234ccb31cd16a52554375db94f572f', 3, 2, 'Crud', 'John'),
-    ('isabelle.genet@express-food.fr', '4b5537283d01e37ac32e8f1f50213671', 3, 1, 'Genet', 'Isabelle'),
-    ('julien.sayard@express-food.fr', '2643dac47fe03525a9415a9010447ee9', 3, 2, 'Sayard', 'Julien'),
-    ('alan.taff243@gmail.com', 'cf0d46775e405d8a75ff8ea2d606eb2b', 2, 2, 'Taff', 'Alan'),
-    ('jean.gayard@free.fr', '0130beb6f379994a806e6909c9c272b7', 2, 2, 'Gayard', 'Jean'),
-    ('juliette.remi254@gmail.com', '4a537821a592020c8250d1118ab0d0ff', 2, 1, 'Remi', 'Juliette'),
-    ('fred.sanpan@outlook.com', '2fb8f578a1ba1adeae2a63445a1517c6', 2, 2, 'Sanpan', 'Frederic'),
-    ('lisa.prost@free.fr', '648fd349448abf4810ca8df6c3b78af0', 2, 1, 'Prost', 'Lisa');
+    ('admin@express-food.fr', MD5('Admin$std'), 1, 2, 'Dune', 'Frédéric'),
+    ('john.crud@express-food.fr', MD5('jCrud5624'), 3, 2, 'Crud', 'John'),
+    ('isabelle.genet@express-food.fr', MD5('isaG5630$stw'), 3, 1, 'Genet', 'Isabelle'),
+    ('julien.sayard@express-food.fr', MD5('jSayard-2045'), 3, 2, 'Sayard', 'Julien'),
+    ('alan.taff243@gmail.com', MD5('alanDTSrr$'), 2, 2, 'Taff', 'Alan'),
+    ('jean.gayard@free.fr', MD5('gj$55mqgstz'), 2, 2, 'Gayard', 'Jean'),
+    ('juliette.remi254@gmail.com', MD5('julRem2005'), 2, 1, 'Remi', 'Juliette'),
+    ('fred.sanpan@outlook.com', MD5('fSanpan25554$'), 2, 2, 'Sanpan', 'Frederic'),
+    ('lisa.prost@free.fr', MD5('lisa2545'), 2, 1, 'Prost', 'Lisa');
 
 
 -- ------- --
@@ -393,18 +395,18 @@ VALUES
 INSERT INTO `plat`
     (`id_type`, `nom`, `description`, `image`, `dernier_prix_vente`)
 VALUES
-    (1, 'Filet mignon de porc sauce balsamique', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_1.jpeg', NULL),
+    (1, 'Filet mignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_1.jpeg', NULL),
     (1, 'Salade lyonnaise', 'hiuhqd qsudhf iqsudhf  qsdf fhqi sudfhqsiduf.  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_2.jpeg', 23.50),
-    (1, 'Confit de cannard & pommes de terres sarladaises', ' qsudhf  qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_3.jpeg', 32),
-    (1, 'Filet de cabillaud sauce citron', 'hiuhqd qsqsdfqsdfudhf iqsudhf qsidufhqiduf dsf fdfd   dfuhq sdfhqsdfhqs.', '/plat/plat_4.jpeg', 27.50),
+    (1, 'Confit de cannard', ' qsudhf  qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_3.jpeg', 32),
+    (1, 'Filet de cabillaud', 'hiuhqd qsqsdfqsdfudhf iqsudhf qsidufhqiduf dsf fdfd   dfuhq sdfhqsdfhqs.', '/plat/plat_4.jpeg', 27.50),
     (1, 'Boeuf bourguignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_5.jpeg', 23.50),
     (2, 'Fondant au chocolat', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_6.jpeg', 14.50),
     (2, 'Crumble de mangues', 'hiuhqd qsudhf iqsudhf qsidu  fhqisudfhqsiduf  qsdifuhqs dfuhq  qdfqd dhh dhf qosdfihqhdf.', '/dessert/dessert_7.jpeg', NULL),
     (2, 'Crème brulée', 'hiuhqd  iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuh dd dddq sdfhqsdfhqs.', '/dessert/dessert_8.jpeg', 11),
-    (2, 'Salade de fruits exotique', 'hi uhqd qsucccdhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_9.jpeg', 11),
+    (2, 'Salade de fruits', 'hi uhqd qsucccdhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_9.jpeg', 11),
     (2, 'Île flottante', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhq siduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_10.jpeg', 12),
     (2, 'Paris Brest', 'hiuhqd qsudhf iqsqsdc udhf qsidufhqisudfhqsiduf  qsdifuhqs df  fgddfguhq .', '/dessert/dessert_11.jpeg', 14),
-    (1, 'Velouté de cêpes aux lardons de foie gras', 'hi qdfqsdfqsdf deuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_12.jpeg', 28.50);
+    (1, 'Velouté de cêpes', 'hi qdfqsdfqsdf deuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_12.jpeg', 28.50);
 
 
 -- --------- --
@@ -452,8 +454,247 @@ VALUES
 
 
 
+-- ------------------- --
+-- PROCEDURES STOCKEES --
+-- ------------------- --
+
+DELIMITER |
+
+-- ----------------- --
+-- LISTE DES LIVREURS --
+-- ----------------- --
+
+CREATE PROCEDURE liste_livreurs()
+
+BEGIN
+    SELECT
+           utilisateur.id,
+           civilite.abrege as civilite,
+           utilisateur.nom,
+           utilisateur.prenom,
+           utilisateur_role.role,
+           ls.label as statut,
+           utilisateur.email,
+           utilisateur.mot_de_passe,
+           livreur.telephone,
+           CONCAT_WS(' - ',livreur.latitude, livreur.longitude) as position_lat_long
+    FROM
+         livreur
+
+    INNER JOIN
+         utilisateur ON livreur.id = utilisateur.id
+    INNER JOIN
+         utilisateur_role ON utilisateur.id_role = utilisateur_role.id
+    INNER JOIN
+         civilite ON utilisateur.id_civilite = civilite.id
+    INNER JOIN
+         livreur_statut ls ON livreur.id_statut = ls.id
+
+    ORDER BY
+         utilisateur.nom, utilisateur.prenom;
+END |
 
 
+-- ----------------- --
+-- LISTE DES CLIENTS --
+-- ----------------- --
 
+CREATE PROCEDURE liste_clients()
+
+BEGIN
+    SELECT
+           utilisateur.id,
+           utilisateur.nom,
+           utilisateur.prenom,
+           utilisateur_role.role,
+           civilite.complet as civilite,
+           utilisateur.email,
+           utilisateur.mot_de_passe,
+           client.telephone
+    FROM
+         client
+
+    INNER JOIN
+         utilisateur ON client.id = utilisateur.id
+    INNER JOIN
+         utilisateur_role ON utilisateur.id_role = utilisateur_role.id
+    INNER JOIN
+         civilite on utilisateur.id_civilite = civilite.id
+
+    ORDER BY
+         utilisateur.nom, utilisateur.prenom;
+END |
+
+
+-- ---------------------------- --
+-- ADRESSES DE LIVRAISON CLIENT --
+-- ---------------------------- --
+
+CREATE PROCEDURE adresses_livraison()
+
+BEGIN
+    SELECT
+           client.id,
+           utilisateur.nom,
+           utilisateur.prenom,
+           adresse_livraison.adresse,
+           adresse_livraison.code_postal,
+           adresse_livraison.ville,
+           adresse_livraison.info,
+           adresse_livraison.defaut
+    FROM
+         client
+
+    INNER JOIN
+         utilisateur ON client.id = utilisateur.id
+    INNER JOIN
+         adresse_livraison ON client.id = adresse_livraison.id_client
+
+    ORDER BY
+         utilisateur.nom, utilisateur.prenom;
+END |
+
+
+-- ------------------------- --
+-- CHIFFRE D'AFFAIRE CLIENTS --
+-- ------------------------- --
+
+CREATE PROCEDURE chiffre_affaire()
+BEGIN
+    SELECT
+        MIN(pj.date) as date,
+        COUNT(DISTINCT cpj.num_commande) as nombre_commandes,
+        SUM(pj.prix * cpj.quantite) as chiffre_affaire,
+        ROUND(AVG(c.temps_livraison)) as temps_livraison_moyen
+    FROM
+         commande_plat_jour cpj
+
+    INNER JOIN
+         plat_jour pj ON cpj.id_plat_jour = pj.id
+    INNER JOIN
+         commande c ON cpj.num_commande = c.numero
+
+    GROUP BY
+        pj.date
+    ORDER BY
+        pj.date ASC;
+END |
+
+
+-- ----------------------------- --
+-- HISTIRIQUE DES PRIX D'UN PLAT --
+-- ----------------------------- --
+
+CREATE PROCEDURE historique_prix()
+BEGIN
+    SELECT
+        p.nom,
+        DATE_FORMAT(MIN(plat_jour.date), '%M %Y') as date,
+        CONCAT(plat_jour.prix, ' €') as prix
+
+    FROM
+        plat_jour
+
+    INNER JOIN
+        plat p ON plat_jour.id_plat = p.id
+
+    GROUP BY
+        p.nom, plat_jour.prix;
+END |
+
+
+-- -------------------- --
+-- RESUME DES COMMANDES --
+-- -------------------- --
+
+CREATE PROCEDURE resume_commandes()
+
+BEGIN
+    SELECT
+           commande.numero as num,
+           cs.label as statut,
+           CONCAT_WS(' ', civilite.abrege, u.nom) as client,
+           SUM(cpj.quantite * pj.prix) as total,
+           GROUP_CONCAT(
+               p.nom, '(',
+               pj.prix, '€, qte: ',
+               cpj.quantite, ')'
+               SEPARATOR ', '
+           ) as details
+
+    FROM
+         commande
+
+    INNER JOIN
+         commande_statut cs ON commande.id_statut = cs.id
+    INNER JOIN
+         client c ON commande.id_client = c.id
+    INNER JOIN
+         utilisateur u ON c.id = u.id
+    INNER JOIN
+         civilite ON u.id_civilite = civilite.id
+    LEFT JOIN
+         adresse_livraison al ON commande.id_adresse = al.id
+    INNER JOIN
+         commande_plat_jour cpj ON commande.numero = cpj.num_commande
+    INNER JOIN
+         plat_jour pj ON cpj.id_plat_jour = pj.id
+    INNER JOIN
+         plat p ON pj.id_plat = p.id
+
+    GROUP BY
+         commande.numero;
+END |
+
+
+-- ---------------------- --
+-- DETAILS D'UNE COMMANDE --
+-- ---------------------- --
+
+CREATE PROCEDURE detail_commande(IN p_id INT)
+
+BEGIN
+    SELECT
+           commande.numero,
+           DATE_FORMAT(MIN(pj.date), '%d/%m/%Y') as date,
+           cs.label as statut,
+           CONCAT_WS(' ', u.prenom, u.nom) as client,
+           CONCAT_WS(', ', al.adresse, al.code_postal, al.ville) as adresse,
+           cpt.label as paiement,
+           SUM(cpj.quantite * pj.prix) as total,
+           GROUP_CONCAT(
+               p.nom, ' (',
+               cpj.quantite, ')'
+               SEPARATOR ', '
+           ) as details,
+           liv.prenom as livreur,
+           CONCAT(commande.temps_livraison, ' mn') as tmp_livraison
+
+    FROM
+         commande
+
+    INNER JOIN
+         commande_statut cs ON commande.id_statut = cs.id
+    INNER JOIN
+         client c ON commande.id_client = c.id
+    INNER JOIN
+         utilisateur u ON c.id = u.id
+    LEFT JOIN
+         adresse_livraison al ON commande.id_adresse = al.id
+    INNER JOIN
+         commande_plat_jour cpj ON commande.numero = cpj.num_commande
+    INNER JOIN
+         plat_jour pj ON cpj.id_plat_jour = pj.id
+    INNER JOIN
+         plat p ON pj.id_plat = p.id
+    LEFT JOIN
+         commande_paiement_type cpt ON commande.type_paiement = cpt.id
+    LEFT JOIN
+         utilisateur liv ON liv.id = commande.id_livreur
+
+    WHERE commande.numero = p_id;
+END |
+
+DELIMITER ;
 
 
