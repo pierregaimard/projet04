@@ -20,8 +20,8 @@ SET lc_time_names = 'fr_FR';
 -- -------------- --
 CREATE TABLE `civilite` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
-    `abrege`  VARCHAR(5)  NOT NULL,
-    `complet` VARCHAR(12) NOT NULL,
+    `abrege`  VARCHAR(3)  NOT NULL,
+    `complet` VARCHAR(8) NOT NULL,
     PRIMARY KEY (`id`)
 )
     ENGINE=INNODB
@@ -188,9 +188,9 @@ CREATE TABLE `commande` (
     DEFAULT CHARSET=utf8mb4;
 
 
--- ---------- --
--- Table Type --
--- ---------- --
+-- --------------- --
+-- Table plat_type --
+-- --------------- --
 CREATE TABLE `plat_type` (
     `id`      TINYINT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `label`   VARCHAR(7)  NOT NULL,
@@ -249,10 +249,26 @@ CREATE TABLE `commande_plat_jour` (
     DEFAULT CHARSET=utf8mb4;
 
 
+-- ----------------------- --
+-- Table livreur_plat_jour --
+-- ----------------------- --
 
--- ------------------------------ --
--- --------- Données ------------ --
--- ------------------------------ --
+CREATE TABLE `livreur_plat_jour` (
+    `id_livreur`    SMALLINT    UNSIGNED NOT NULL,
+    `id_plat_jour`  SMALLINT    UNSIGNED NOT NULL,
+    `quantite`      TINYINT     UNSIGNED NOT NULL,
+    PRIMARY KEY (`id_livreur`, `id_plat_jour`),
+    CONSTRAINT `fk_livreur_plat_jour_id_livreur`    FOREIGN KEY (`id_livreur`) REFERENCES livreur (`id`)        ON DELETE CASCADE, -- en cas de suppression d'un livreur, on supprime son stock
+    CONSTRAINT `fk_livreur_plat_jour_id_plat_jour`  FOREIGN KEY (`id_plat_jour`) REFERENCES plat_jour (`id`)    -- si un livreur possède des plats du jour, impossible de modifier ou de supprimer le plat du jour
+)
+    ENGINE=INNODB
+    DEFAULT CHARSET=utf8mb4;
+
+
+
+-- ------------------------------------------------ --
+-- ------------------ Données --------------------- --
+-- ------------------------------------------------ --
 
 
 -- -------- --
@@ -437,6 +453,17 @@ VALUES
     (5, 6, 6, 4, 1, 18);
 
 
+-- ----------------- --
+-- livreur_plat_jour --
+-- ----------------- --
+INSERT INTO `livreur_plat_jour`
+    (`id_livreur`, `id_plat_jour`, `quantite`)
+VALUES
+    (2, 13, 11), (2, 14, 5), (2, 15, 8), (2, 16, 10),
+    (3, 13, 6), (3, 14, 5), (3, 15, 10), (3, 16, 6),
+    (4, 13, 9), (4, 14, 13), (4, 15, 12), (4, 16, 11);
+
+
 -- ------------------ --
 -- commande_plat_jour --
 -- ------------------ --
@@ -454,9 +481,9 @@ VALUES
 
 
 
--- ------------------- --
--- PROCEDURES STOCKEES --
--- ------------------- --
+-- --------------------------------------------------------- --
+-- ------------------ PROCEDURES STOCKEES ------------------ --
+-- --------------------------------------------------------- --
 
 DELIMITER |
 
@@ -469,15 +496,20 @@ CREATE PROCEDURE liste_livreurs()
 BEGIN
     SELECT
            utilisateur.id,
-           civilite.abrege as civilite,
+           civilite.abrege AS civilite,
            utilisateur.nom,
            utilisateur.prenom,
            utilisateur_role.role,
-           ls.label as statut,
+           ls.label AS statut,
            utilisateur.email,
            utilisateur.mot_de_passe,
            livreur.telephone,
-           CONCAT_WS(' - ',livreur.latitude, livreur.longitude) as position_lat_long
+           CONCAT_WS('/',livreur.latitude, livreur.longitude) AS position_lat_long,
+           (
+                SELECT SUM(livreur_plat_jour.quantite)
+                FROM livreur_plat_jour
+                WHERE livreur_plat_jour.id_livreur = utilisateur.id
+           ) AS stock_total_plats
     FROM
          livreur
 
@@ -489,6 +521,9 @@ BEGIN
          civilite ON utilisateur.id_civilite = civilite.id
     INNER JOIN
          livreur_statut ls ON livreur.id_statut = ls.id
+
+    GROUP BY
+        utilisateur.id
 
     ORDER BY
          utilisateur.nom, utilisateur.prenom;
@@ -507,10 +542,22 @@ BEGIN
            utilisateur.nom,
            utilisateur.prenom,
            utilisateur_role.role,
-           civilite.complet as civilite,
+           civilite.complet AS civilite,
            utilisateur.email,
            utilisateur.mot_de_passe,
-           client.telephone
+           client.telephone,
+           (
+                SELECT COUNT(commande.numero)
+                FROM commande
+                WHERE commande.id_client = utilisateur.id
+            ) as nb_commandes,
+           (
+                SELECT SUM(commande_plat_jour.quantite * plat_jour.prix)
+                FROM commande
+                INNER JOIN commande_plat_jour ON commande.numero = commande_plat_jour.num_commande
+                INNER JOIN plat_jour ON commande_plat_jour.id_plat_jour = plat_jour.id
+                WHERE commande.id_client = utilisateur.id
+           ) as CA
     FROM
          client
 
@@ -520,6 +567,9 @@ BEGIN
          utilisateur_role ON utilisateur.id_role = utilisateur_role.id
     INNER JOIN
          civilite on utilisateur.id_civilite = civilite.id
+
+    GROUP BY
+         utilisateur.id
 
     ORDER BY
          utilisateur.nom, utilisateur.prenom;
@@ -555,17 +605,17 @@ BEGIN
 END |
 
 
--- ------------------------- --
--- CHIFFRE D'AFFAIRE CLIENTS --
--- ------------------------- --
+-- --------------------- --
+-- STATISTIQUES DE VENTE --
+-- --------------------- --
 
-CREATE PROCEDURE chiffre_affaire()
+CREATE PROCEDURE stats_vente()
 BEGIN
     SELECT
-        MIN(pj.date) as date,
-        COUNT(DISTINCT cpj.num_commande) as nombre_commandes,
-        SUM(pj.prix * cpj.quantite) as chiffre_affaire,
-        ROUND(AVG(c.temps_livraison)) as temps_livraison_moyen
+        MIN(pj.date) AS date,
+        COUNT(DISTINCT cpj.num_commande) AS nombre_commandes,
+        SUM(pj.prix * cpj.quantite) AS chiffre_affaire,
+        ROUND(AVG(c.temps_livraison)) AS temps_livraison_moyen
     FROM
          commande_plat_jour cpj
 
@@ -576,6 +626,7 @@ BEGIN
 
     GROUP BY
         pj.date
+
     ORDER BY
         pj.date ASC;
 END |
@@ -589,8 +640,8 @@ CREATE PROCEDURE historique_prix()
 BEGIN
     SELECT
         p.nom,
-        DATE_FORMAT(MIN(plat_jour.date), '%M %Y') as date,
-        CONCAT(plat_jour.prix, ' €') as prix
+        DATE_FORMAT(MIN(plat_jour.date), '%M %Y') AS date,
+        CONCAT(plat_jour.prix, ' €') AS prix
 
     FROM
         plat_jour
@@ -611,16 +662,16 @@ CREATE PROCEDURE resume_commandes()
 
 BEGIN
     SELECT
-           commande.numero as num,
+           commande.numero AS num,
            cs.label as statut,
-           CONCAT_WS(' ', civilite.abrege, u.nom) as client,
-           SUM(cpj.quantite * pj.prix) as total,
+           CONCAT_WS(' ', civilite.abrege, u.nom) AS client,
+           SUM(cpj.quantite * pj.prix) AS total,
            GROUP_CONCAT(
                p.nom, '(',
                pj.prix, '€, qte: ',
                cpj.quantite, ')'
                SEPARATOR ', '
-           ) as details
+           ) AS details
 
     FROM
          commande
@@ -656,19 +707,19 @@ CREATE PROCEDURE detail_commande(IN p_id INT)
 BEGIN
     SELECT
            commande.numero,
-           DATE_FORMAT(MIN(pj.date), '%d/%m/%Y') as date,
-           cs.label as statut,
-           CONCAT_WS(' ', u.prenom, u.nom) as client,
-           CONCAT_WS(', ', al.adresse, al.code_postal, al.ville) as adresse,
-           cpt.label as paiement,
+           DATE_FORMAT(MIN(pj.date), '%d/%m/%Y') AS date,
+           cs.label AS statut,
+           CONCAT_WS(' ', u.prenom, u.nom) AS client,
+           CONCAT_WS(', ', al.adresse, al.code_postal, al.ville) AS adresse,
+           cpt.label AS paiement,
            SUM(cpj.quantite * pj.prix) as total,
            GROUP_CONCAT(
                p.nom, ' (',
                cpj.quantite, ')'
                SEPARATOR ', '
-           ) as details,
-           liv.prenom as livreur,
-           CONCAT(commande.temps_livraison, ' mn') as tmp_livraison
+           ) AS details,
+           liv.prenom AS livreur,
+           CONCAT(commande.temps_livraison, ' mn') AS tmp_livraison
 
     FROM
          commande
@@ -694,6 +745,40 @@ BEGIN
 
     WHERE commande.numero = p_id;
 END |
+
+
+-- -------------- --
+-- livreurs_dispo --
+-- -------------- --
+
+CREATE PROCEDURE livreurs_stock()
+
+BEGIN
+    SELECT
+        utilisateur.id,
+        CONCAT_WS(' ', utilisateur.nom, utilisateur.prenom) AS nom_livreur,
+        MIN(DATE_FORMAT(plat_jour.date, '%d %M %Y')) AS stock_date,
+        GROUP_CONCAT(
+            plat.nom, ' (',
+            livreur_plat_jour.quantite, ')'
+            SEPARATOR ', '
+        ) AS stock
+
+    FROM
+        utilisateur
+
+    INNER JOIN
+        livreur_plat_jour ON utilisateur.id = livreur_plat_jour.id_livreur
+    INNER JOIN
+        plat_jour ON livreur_plat_jour.id_plat_jour = plat_jour.id
+    INNER JOIN
+        plat ON plat_jour.id_plat = plat.id
+
+
+    GROUP BY
+        utilisateur.id;
+END |
+
 
 DELIMITER ;
 
