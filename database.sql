@@ -266,6 +266,43 @@ CREATE TABLE `livreur_plat_jour` (
 
 
 
+-- ----------------------------------------------------------------- --
+-- ---------------------------- TRIGGER ---------------------------- --
+-- ----------------------------------------------------------------- --
+
+
+
+DELIMITER |
+
+-- --------- --
+-- plat_jour --
+-- --------- --
+
+-- AFTER INSERT insertion du dernier prix de vente dans la table plat --
+
+CREATE TRIGGER after_insert_plat_jour AFTER INSERT
+ON plat_jour FOR EACH ROW
+BEGIN
+    UPDATE plat SET `dernier_prix_vente` = NEW.prix
+    WHERE id = NEW.id_plat;
+END |
+
+
+-- AFTER UPDATE: insertion du dernier prix de vente dans la table plat --
+
+CREATE TRIGGER after_update_plat_jour AFTER UPDATE
+ON plat_jour FOR EACH ROW
+BEGIN
+    UPDATE plat SET `dernier_prix_vente` = NEW.prix
+    WHERE id = NEW.id_plat;
+END |
+
+DELIMITER ;
+
+
+
+
+
 -- ------------------------------------------------ --
 -- ------------------ Données --------------------- --
 -- ------------------------------------------------ --
@@ -409,20 +446,20 @@ VALUES
 -- plat --
 -- ---- --
 INSERT INTO `plat`
-    (`id_type`, `nom`, `description`, `image`, `dernier_prix_vente`)
+    (`id_type`, `nom`, `description`, `image`)
 VALUES
-    (1, 'Filet mignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_1.jpeg', NULL),
-    (1, 'Salade lyonnaise', 'hiuhqd qsudhf iqsudhf  qsdf fhqi sudfhqsiduf.  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_2.jpeg', 23.50),
-    (1, 'Confit de cannard', ' qsudhf  qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_3.jpeg', 32),
-    (1, 'Filet de cabillaud', 'hiuhqd qsqsdfqsdfudhf iqsudhf qsidufhqiduf dsf fdfd   dfuhq sdfhqsdfhqs.', '/plat/plat_4.jpeg', 27.50),
-    (1, 'Boeuf bourguignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_5.jpeg', 23.50),
-    (2, 'Fondant au chocolat', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_6.jpeg', 14.50),
-    (2, 'Crumble de mangues', 'hiuhqd qsudhf iqsudhf qsidu  fhqisudfhqsiduf  qsdifuhqs dfuhq  qdfqd dhh dhf qosdfihqhdf.', '/dessert/dessert_7.jpeg', NULL),
-    (2, 'Crème brulée', 'hiuhqd  iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuh dd dddq sdfhqsdfhqs.', '/dessert/dessert_8.jpeg', 11),
-    (2, 'Salade de fruits', 'hi uhqd qsucccdhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_9.jpeg', 11),
-    (2, 'Île flottante', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhq siduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_10.jpeg', 12),
-    (2, 'Paris Brest', 'hiuhqd qsudhf iqsqsdc udhf qsidufhqisudfhqsiduf  qsdifuhqs df  fgddfguhq .', '/dessert/dessert_11.jpeg', 14),
-    (1, 'Velouté de cêpes', 'hi qdfqsdfqsdf deuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_12.jpeg', 28.50);
+    (1, 'Filet mignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_1.jpeg'),
+    (1, 'Salade lyonnaise', 'hiuhqd qsudhf iqsudhf  qsdf fhqi sudfhqsiduf.  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_2.jpeg'),
+    (1, 'Confit de cannard', ' qsudhf  qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_3.jpeg'),
+    (1, 'Filet de cabillaud', 'hiuhqd qsqsdfqsdfudhf iqsudhf qsidufhqiduf dsf fdfd   dfuhq sdfhqsdfhqs.', '/plat/plat_4.jpeg'),
+    (1, 'Boeuf bourguignon', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_5.jpeg'),
+    (2, 'Fondant au chocolat', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_6.jpeg'),
+    (2, 'Crumble de mangues', 'hiuhqd qsudhf iqsudhf qsidu  fhqisudfhqsiduf  qsdifuhqs dfuhq  qdfqd dhh dhf qosdfihqhdf.', '/dessert/dessert_7.jpeg'),
+    (2, 'Crème brulée', 'hiuhqd  iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuh dd dddq sdfhqsdfhqs.', '/dessert/dessert_8.jpeg'),
+    (2, 'Salade de fruits', 'hi uhqd qsucccdhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_9.jpeg'),
+    (2, 'Île flottante', 'hiuhqd qsudhf iqsudhf qsidufhqisudfhq siduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/dessert/dessert_10.jpeg'),
+    (2, 'Paris Brest', 'hiuhqd qsudhf iqsqsdc udhf qsidufhqisudfhqsiduf  qsdifuhqs df  fgddfguhq .', '/dessert/dessert_11.jpeg'),
+    (1, 'Velouté de cêpes', 'hi qdfqsdfqsdf deuhqd qsudhf iqsudhf qsidufhqisudfhqsiduf  qsdifuhqs dfuhq sdfhqsdfhqs.', '/plat/plat_12.jpeg');
 
 
 -- --------- --
@@ -781,5 +818,6 @@ END |
 
 
 DELIMITER ;
+
 
 
